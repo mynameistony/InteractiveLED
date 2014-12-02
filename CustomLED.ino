@@ -19,10 +19,10 @@ void loop(){
       project.readInputs();
       project.printDisplay();  
       
-      if(project.buttonState[0] == 0)
+      if(project.buttonState[0] == 1)
         project.createNewPattern();        
    
-      if(project.buttonState[1] == 0)       
+      if(project.buttonState[1] == 1)       
         project.setCurrentPattern();
 }
 

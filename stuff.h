@@ -198,7 +198,7 @@ class Pattern {
 			  
 		  for(int i = 0; i < frameCount; i++)
 		    for(int j = 0; j < 10; j++)            
-		      pattern[i][j] = 0;
+		      setLED(i,j,0);
 		};
 		       
 		void setDurations(int newDurations[], int length){
@@ -291,7 +291,7 @@ class Project {
     
     void readInputs(){
       for(int i = 0; i < 3; i++)
-        buttonState[i] = digitalRead(buttonPin[i]);
+        buttonState[i] = !digitalRead(buttonPin[i]);
 
       pots[0] = analogRead(A1);
       pots[1] = analogRead(A2);
@@ -323,6 +323,12 @@ class Project {
           
           thisFrame = map(pots[0],0,680,1,10);
           
+          if(thisFrame > 10)
+            thisFrame = 10;
+
+          if(thisFrame < 1)
+            thisFrame = 1;
+          
           if(millis() - lastPrint > 100){
             
             lcd->clear();
@@ -333,14 +339,14 @@ class Project {
             lastPrint = millis();            
           }
         
-        }while(buttonState[2] == 1);
+        }while(!buttonState[2]);
         
           patterns[patternCount] = new Pattern(thisFrame);
           
-        for(int i = 0; i < patterns[0]->frameCount; i++){
+        for(int i = 0; i < patterns[patternCount]->frameCount; i++){
           for(int j = 0; j < 10; j++){
            
-            unsigned long value;
+            unsigned long value = 0xffffff;
             do{
               
               readInputs();
@@ -348,10 +354,24 @@ class Project {
               int r,g,b;
               
               r = map(pots[0],0,680,0,256);
+              if(r < 0)
+                r=0;
+              if(r > 255)
+                r=255;
+                
               g = map(pots[1],0,680,0,256);
+              if(g < 0)
+                g=0;
+              if(g > 255)
+                g=255;
+                
               b = map(pots[2],0,680,0,256);              
-              
-              value = (b * 0x000001) + (g * 0x000100) + (r * 0x010000);
+                if(b < 0)
+                b=0;
+              if(b > 255)
+                b=255;            
+                
+              value = (r * 0x010000) + (g * 0x000100) + (b * 0x000001);
               if(millis() - lastPrint > 100){
 
             
@@ -374,13 +394,11 @@ class Project {
                 lastPrint = millis();  
               }
               
-            }while(buttonState[1] == 1);
+            }while(!buttonState[1]);
             
             patterns[patternCount]->setLED(i,j,value);
             
-            while(buttonState[1] == 0){
-              readInputs();
-            }
+            while(buttonState[1]){readInputs();}
             
             
           }
@@ -394,11 +412,19 @@ class Project {
     };
     
     void setCurrentPattern(){
-      currPattern = map(pots[0],0,680,0,patternCount+1);
+      currPattern = map(pots[0],0,680,0,patternCount);
+      
+      if(currPattern > patternCount)
+        currPattern = patternCount;
+      
+      if(currPattern < 0)
+        currPattern = 0;
     };
     
     void printDisplay(){
       if(millis() - lastPrint > 100){
+        patterns[currPattern]->printPattern();
+        
         lcd->clear();
   
         lcd->print(currPattern);
