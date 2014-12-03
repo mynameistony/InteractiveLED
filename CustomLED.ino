@@ -8,9 +8,12 @@ unsigned long lastPrint = 0;
 Project project(6,7,9600,2,3,4);
 
 void setup(){ 
-      Serial.begin(9600); 
+  
+  project.strip->strip[0] = 0xff0000;
+  project.strip->updateStrip();
+  Serial.begin(9600); 
       
-      project.lcd->lightOn();         
+  project.lcd->lightOn();         
 
 }
      

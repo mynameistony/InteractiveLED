@@ -11,9 +11,26 @@
 
 class Strip {
   public:
+  
+    unsigned long strip[10];
  
     Strip(){
       
+      for(int i = 0; i < 10; i++)
+        strip[i] = 0x010101;
+      
+      STRIP_PINOUT;
+      
+      reset_strip();
+      
+      mySend(strip);
+      
+      
+    };
+       
+    void updateStrip(){
+      
+      mySend(strip);
       
     };
 
@@ -372,9 +389,12 @@ class Project {
                 b=255;            
                 
               value = (r * 0x010000) + (g * 0x000100) + (b * 0x000001);
+              
+              strip->strip[j] = value;
+              strip->updateStrip();
+              
               if(millis() - lastPrint > 100){
-
-            
+           
                 lcd->clear();
                 lcd->print(value, 1);
 
@@ -404,21 +424,22 @@ class Project {
           }
         }
         
- 
-        
         patterns[patternCount]->printPattern();
         patternCount++;
       
     };
     
     void setCurrentPattern(){
-      currPattern = map(pots[0],0,680,0,patternCount);
+      currPattern++;
       
       if(currPattern > patternCount)
-        currPattern = patternCount;
-      
-      if(currPattern < 0)
         currPattern = 0;
+        
+      for(int i = 0; i < 10; i++)
+        strip->strip[i] = patterns[currPattern]->getLED(0,i);
+        
+      strip->updateStrip();
+        
     };
     
     void printDisplay(){
