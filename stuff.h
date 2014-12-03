@@ -292,7 +292,7 @@ class Project {
       currPattern = 0;
       
       lastPrint = 0;
-      
+       
       patterns[0] = new Pattern(1);
       
       for(int i = 0; i < 3; i++){
